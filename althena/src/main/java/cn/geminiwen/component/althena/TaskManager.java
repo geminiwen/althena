@@ -38,6 +38,7 @@ public class TaskManager {
     }
 
     public void submit(Task task) {
+
         DownloadRunnable downloadRunnable = new DownloadRunnable(task);
         mExecutorService.execute(downloadRunnable);
     }
@@ -55,7 +56,11 @@ public class TaskManager {
 
         @Override
         public void run()  {
+            if(mRunningTask.contains(this.wrapperTask)) {
+                return;
+            }
             Task task = this.wrapperTask.getTask();
+            mRunningTask.add(this.wrapperTask);
             String url = task.getUrl();
             mPausedTask.remove(this.wrapperTask);
             long bytesOffset = this.wrapperTask.byteHasRead;
@@ -109,8 +114,6 @@ public class TaskManager {
                  */
                 File dstFile = task.getDst();
                 BufferedSink fileSink = Okio.buffer(isAppend ? Okio.appendingSink(dstFile) : Okio.sink(dstFile));
-
-                mRunningTask.add(this.wrapperTask);
 
                 while( !source.exhausted() ) {
                     int readBytes = source.read(sink);
