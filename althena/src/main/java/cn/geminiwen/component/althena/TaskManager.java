@@ -25,7 +25,7 @@ import okio.Okio;
  */
 public class TaskManager {
     private Executor mExecutorService = AsyncTask.THREAD_POOL_EXECUTOR;
-    private OkHttpClient mOkHttpClient = OkHttpInstance.INSTANCE$.getHttpClient();
+    private OkHttpClient mOkHttpClient = OkHttpInstance.getHttpClient();
 
     private final int READ_BYTES = 4096;
 
@@ -74,7 +74,7 @@ public class TaskManager {
             }
             Request req = builder.build();
 
-            Althena.OnDownloadStateUpdateListener l = task.getStateUpdateListener();
+            Althena.OnDownloadStateUpdateListener l = task.getOnStateUpdateListener();
 
             if (l != null) {
                 l.onStart(task);
@@ -126,7 +126,7 @@ public class TaskManager {
                                            this.wrapperTask.getContentLength());
                     }
 
-                    if (task.getPaused()) {
+                    if (task.isPaused()) {
                         /**
                          * if task paused, add task to paused task queue
                          */
@@ -143,11 +143,11 @@ public class TaskManager {
                 /**
                  * if this task is complete successfully
                  */
-                if (l != null && !task.getPaused() && !task.getCanceled()) {
+                if (l != null && !task.isPaused() && !task.isCanceled()) {
                     l.onComplete(task);
                 }
 
-                if (task.getCanceled()) {
+                if (task.isCanceled()) {
                     dstFile.delete();
 
                     if (l != null) {
@@ -180,7 +180,7 @@ public class TaskManager {
 
         public WrapperTask(Task task) {
             this.task = task;
-            this.byteHasRead = task.getBytesOffset();
+            this.byteHasRead = task.getByteOffset();
         }
 
         public Task getTask() {
@@ -189,7 +189,7 @@ public class TaskManager {
 
         public void appendLength(long byteHasRead) {
             this.byteHasRead += byteHasRead;
-            this.task.setBytesOffset(byteHasRead);
+            this.task.setByteOffset(byteHasRead);
         }
 
         public void setContentLength(long contentLength) {

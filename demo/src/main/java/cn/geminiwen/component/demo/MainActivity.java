@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity implements Althena.OnDownloa
         File fileDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File dstFile = new File(fileDir, "test.png");
         Task task = new Task("http://ww1.sinaimg.cn/large/7a8aed7bgw1euzko6672oj20go0oz771.jpg", dstFile, System.currentTimeMillis());
-        task.setStateUpdateListener(this);
+        task.setOnStateUpdateListener(this);
         Althena.start(task);
     }
 
