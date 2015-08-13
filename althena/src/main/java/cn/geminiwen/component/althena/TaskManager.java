@@ -62,8 +62,15 @@ public class TaskManager {
         index = mPausedTask.indexOf(wrapperTask);
         if (index != -1) {
             WrapperTask innerTask = mPausedTask.get(index);
+            Task realTask = innerTask.getTask();
             mPausedTask.remove(innerTask);
-            innerTask.getTask().getDst().delete();
+            realTask.getDst().delete();
+
+            // notify listener
+            Althena.OnDownloadStateUpdateListener listener = realTask.getOnStateUpdateListener();
+            if(listener != null) {
+                listener.onStop(realTask);
+            }
         }
     }
 
@@ -99,6 +106,26 @@ public class TaskManager {
             Request req = builder.build();
 
             Althena.OnDownloadStateUpdateListener l = task.getOnStateUpdateListener();
+
+            if (task.isPaused()) {
+                mRunningTask.remove(this.wrapperTask);
+                mPausedTask.add(this.wrapperTask);
+
+                if (l != null) {
+                    l.onPause(task);
+                }
+                return;
+            }
+
+            if (task.isCanceled()) {
+                mRunningTask.remove(this.wrapperTask);
+
+                if (l != null) {
+                    l.onStop(task);
+                }
+                return;
+            }
+
 
             if (l != null) {
                 l.onStart(task);
