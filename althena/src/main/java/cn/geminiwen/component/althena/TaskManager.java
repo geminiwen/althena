@@ -54,9 +54,11 @@ public class TaskManager {
     public void stop(Task task) {
         WrapperTask wrapperTask = new WrapperTask(task);
         int index = mRunningTask.indexOf(wrapperTask);
+        boolean handled = false;
         if (index != -1) {
             WrapperTask innerTask = mRunningTask.get(index);
             innerTask.getTask().setCanceled(true);
+            handled = true;
         }
 
         index = mPausedTask.indexOf(wrapperTask);
@@ -70,6 +72,15 @@ public class TaskManager {
             Althena.OnDownloadStateUpdateListener listener = realTask.getOnStateUpdateListener();
             if(listener != null) {
                 listener.onStop(realTask);
+            }
+            handled = true;
+        }
+
+        // when this task is not in this task manager
+        if (!handled) {
+            Althena.OnDownloadStateUpdateListener listener = task.getOnStateUpdateListener();
+            if(listener != null) {
+                listener.onStop(task);
             }
         }
     }
