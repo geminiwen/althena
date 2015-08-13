@@ -89,10 +89,22 @@ public class Task {
     }
 
     public void setOnStateUpdateListener(Althena.OnDownloadStateUpdateListener l) {
-        this.stateUpdateListener = new WeakReference<Althena.OnDownloadStateUpdateListener>(l);
+        this.stateUpdateListener = new WeakReference<>(l);
     }
 
     public Althena.OnDownloadStateUpdateListener getOnStateUpdateListener() {
         return this.stateUpdateListener == null ? null : this.stateUpdateListener.get();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Task)) {
+            return false;
+        }
+        Task other = (Task)o;
+        return this.id == other.id;
     }
 }

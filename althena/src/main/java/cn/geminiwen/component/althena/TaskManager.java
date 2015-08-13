@@ -113,6 +113,9 @@ public class TaskManager {
                  * Initialize File OutputStream
                  */
                 File dstFile = task.getDst();
+                if (!dstFile.exists()) {
+                    dstFile.createNewFile();
+                }
                 BufferedSink fileSink = Okio.buffer(isAppend ? Okio.appendingSink(dstFile) : Okio.sink(dstFile));
 
                 while( !source.exhausted() ) {
