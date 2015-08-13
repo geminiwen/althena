@@ -38,9 +38,33 @@ public class TaskManager {
     }
 
     public void submit(Task task) {
-
         DownloadRunnable downloadRunnable = new DownloadRunnable(task);
         mExecutorService.execute(downloadRunnable);
+    }
+
+    public void pause(Task task) {
+        WrapperTask wrapperTask = new WrapperTask(task);
+        int index = mRunningTask.indexOf(wrapperTask);
+        if (index != -1) {
+            wrapperTask = mRunningTask.get(index);
+            wrapperTask.getTask().setPaused(true);
+        }
+    }
+
+    public void stop(Task task) {
+        WrapperTask wrapperTask = new WrapperTask(task);
+        int index = mRunningTask.indexOf(wrapperTask);
+        if (index != -1) {
+            WrapperTask innerTask = mRunningTask.get(index);
+            innerTask.getTask().setCanceled(true);
+        }
+
+        index = mPausedTask.indexOf(wrapperTask);
+        if (index != -1) {
+            WrapperTask innerTask = mPausedTask.get(index);
+            mPausedTask.remove(innerTask);
+            innerTask.getTask().getDst().delete();
+        }
     }
 
     private class DownloadRunnable implements Runnable {
@@ -61,8 +85,8 @@ public class TaskManager {
             }
             Task task = this.wrapperTask.getTask();
             mRunningTask.add(this.wrapperTask);
-            String url = task.getUrl();
             mPausedTask.remove(this.wrapperTask);
+            String url = task.getUrl();
             long bytesOffset = this.wrapperTask.byteHasRead;
 
             Request.Builder builder = new Request.Builder();
@@ -122,7 +146,7 @@ public class TaskManager {
 
                     if (l != null) {
                         l.onProgressUpdate(task,
-                                           this.wrapperTask.getByteHasRead(),
+                                this.wrapperTask.getByteHasRead(),
                                            this.wrapperTask.getContentLength());
                     }
 
