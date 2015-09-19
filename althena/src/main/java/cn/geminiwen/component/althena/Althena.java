@@ -15,11 +15,11 @@ public class Althena {
     }
 
     public static void pause(Task task) {
-        task.setPaused(true);
+        sTaskManager.pause(task);
     }
 
     public static void stop(Task task) {
-        task.setCanceled(true);
+        sTaskManager.stop(task);
     }
 
 
